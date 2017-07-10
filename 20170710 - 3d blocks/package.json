@@ -1,0 +1,14 @@
+{
+  "name": "richmulhern.com",
+  "version": "1.0.0",
+  "description": "Personal site",
+  "main": "index.js",
+  "author": "Richard Mulhern",
+  "license": "MIT",
+  "scripts": {
+    "start": "browser-sync start --server --files '*.css, *.html, *.js'"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.18.12"
+  }
+}
