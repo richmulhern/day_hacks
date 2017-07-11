@@ -8,6 +8,9 @@
   "scripts": {
     "start": "browser-sync start --server --files '*.css, *.html, *.js'"
   },
+  "dependencies": {
+    "three": "^0.86.0"
+  },
   "devDependencies": {
     "browser-sync": "^2.18.12"
   }

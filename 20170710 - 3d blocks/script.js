@@ -5,13 +5,11 @@ const maxSpeed = 0.04;
 const minSpeed = 0.0001;
 const boxSize = 200;
 const baseScale = 1;
-const scaleMax = .5;
-const meshes = [];
+const scaleMax = 0.5;
 const spacing = 460;
-const numBoxes = 47;
-const numPerRow = 7;
+const numBoxes = 40;
+const numPerRow = 8;
 const numRows = numBoxes / numPerRow;
-const hue = 150;
 
 let ySpeed = 0.01;
 let scale = baseScale;
@@ -26,33 +24,64 @@ function init() {
     geometry = new THREE.BoxGeometry( boxSize, boxSize, boxSize );
 
     for (let i = 0; i < numBoxes; i++ ) {
+        const column = i % numPerRow;
+        const row = Math.floor(i / numPerRow);
+        const halfXPoint = (numPerRow - 1) / 2;
+        const halfYPoint = (numRows - 1) / 2;
+        const xPosPercent = Math.abs(column - halfXPoint) / halfXPoint;
 
-        const hueSlice = hue / Math.floor(numPerRow / 2);
-        const newHue = 30 + Math.round(hueSlice * Math.abs(Math.floor(Math.abs((i % 7) - ((numPerRow - 1)/2)))));
+        const boxX = spacing * (column - halfXPoint);
+        const boxY = spacing * Math.round(row - halfYPoint);
 
-        material = new THREE.MeshBasicMaterial( { wireframe: true } );
-        material.color = new THREE.Color(`rgb(${newHue}, ${newHue}, ${newHue})`);
+        const box = new Box();
+        box.setOpacity(1.20 - xPosPercent);
+        box.setPosition(boxX, boxY);
+        mesh = box.getMesh();
 
-        mesh = new THREE.Mesh( geometry, material );
-        mesh.position.x = spacing * ((i % numPerRow) - ((numPerRow - 1) / 2));
-        mesh.position.y = spacing * Math.floor(((numRows - 1) / 2) - Math.floor(i / numPerRow));
-
-        meshes[i] = mesh;
-        scene.add( meshes[i] );
+        scene.add( mesh );
     }
-
 
     renderer = new THREE.WebGLRenderer({alpha: true});
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.domElement.addEventListener('mousemove', setSpeed);
-
     document.body.appendChild( renderer.domElement );
+}
+
+class Box {
+
+    constructor() {
+        this.boxSize = 200;
+        this.baseScale = 1;
+        this.scaleMax = .5;
+        this.defaultHue = 20;
+
+        this.box = new THREE.BoxGeometry( boxSize, boxSize, boxSize );
+        this.material = new THREE.MeshBasicMaterial( { wireframe: true } );
+        this.material.color = new THREE.Color(`rgb(${this.defaultHue}, ${this.defaultHue}, ${this.defaultHue})`);
+        this.mesh = new THREE.Mesh( this.box, this.material );
+        this.setOpacity(1);
+    }
+
+    setOpacity(value) {
+        this.material.opacity = value;
+    }
+
+    setPosition(x, y) {
+        this.mesh.position.x = x;
+        this.mesh.position.y = y;
+
+        return this.mesh;
+    }
+
+    getMesh() {
+        return this.mesh;
+    }
 }
 
 function animate() {
     requestAnimationFrame( animate );
 
-    meshes.forEach(mesh => {
+    scene.children.forEach(mesh => {
         mesh.rotation.y += ySpeed;
         mesh.scale.set(scale, scale, scale);
     });
@@ -63,11 +92,9 @@ function animate() {
 function setSpeed(e) {
     const x = e.offsetX;
     const width = e.target.offsetWidth;
-
     const walk = maxSpeed - minSpeed;
 
     ySpeed = (x / width * walk) - (walk / 2);
-
     scale = baseScale + (scaleMax * Math.abs(x - (width/2)) / (width/2));
 }
 
